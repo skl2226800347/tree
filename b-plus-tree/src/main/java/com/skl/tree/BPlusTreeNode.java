@@ -13,6 +13,14 @@ public class BPlusTreeNode implements Serializable {
         address = new Object[degree*2];
     }
 
+    public BPlusTreeNode(int degree,Object key){
+        this.key = key;
+        this.degree = degree;
+        treeNodes= new BPlusTreeNode[degree*2];
+        address = new Object[degree*2];
+        treeNodes[0] = key;
+    }
+
     public int getDegree() {
         return degree;
     }
@@ -44,4 +52,6 @@ public class BPlusTreeNode implements Serializable {
     public void setKey(Object key) {
         this.key = key;
     }
+
+    public boolean
 }
