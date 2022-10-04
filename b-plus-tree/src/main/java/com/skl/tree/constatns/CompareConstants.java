@@ -1,6 +1,6 @@
 package com.skl.tree.constatns;
 
-public interface Constatns {
+public interface CompareConstants {
     /**
      * 等于
      */

@@ -1,50 +1,51 @@
 package com.skl.tree;
 
-import com.skl.tree.utils.KeyCompareUtil;
+import com.skl.tree.utils.CompareUtil;
 
 import java.io.Serializable;
 
 public class BPlusTree implements Serializable {
     private int degree;
     private BPlusTreeNode root;
-    public BPlusTree(int degree){
+    private TreeMappedFile treeMappedFile;
+    public BPlusTree(int degree,TreeMappedFile treeMappedFile){
         this.degree= degree;
         root = new BPlusTreeNode(degree);
+        this.treeMappedFile = treeMappedFile;
     }
 
     public void insert(Object key){
-        boolean include = include(root,key);
-        if(include){
+        boolean isCanInsert = isCanInsertCondition(root,key);
+        if(isCanInsert){
+            doInsert(key,root);
             return ;
         }
-        for(int i=0 ;i<root.getTreeNodes().length;i++){
-            BPlusTreeNode bPlusTreeNode = root.getTreeNodes()[i];
-            if(bPlusTreeNode == null){
-                if(bPlusTreeNode == null){
-                    bPlusTreeNode = new BPlusTreeNode(degree,key);
-                    root.getTreeNodes()[i]=bPlusTreeNode;
-                    break;
-                }else {
+        for(int i=0 ;i<root.getKeys().length;i++){
+            Object preKey = root.getKeys()[i];
 
-                }
-            }
         }
     }
     private void doInsert(Object key,BPlusTreeNode bPlusTreeNode){
-        if(bPlusTreeNode == root){
+        int keyLength = bPlusTreeNode.getKeys().length;
+        for(int i=0;i<keyLength;i++) {
+            Object curKey=bPlusTreeNode.getKeys()[i];
+            if(curKey == null){
 
+            }else {
+                int compareValue = CompareUtil.compare(curKey, key);
+            }
         }
     }
 
 
-    public static final boolean include(BPlusTreeNode bPlusTreeNode,Object key){
+    public static final boolean isCanInsertCondition(BPlusTreeNode bPlusTreeNode,Object key){
         if(bPlusTreeNode == null){
             return false;
         }
-        BPlusTreeNode first = bPlusTreeNode.getTreeNodes()[0];
-        BPlusTreeNode last = bPlusTreeNode.getTreeNodes()[bPlusTreeNode.getTreeNodes().length-1];
-        int startCompare = KeyCompareUtil.compare(first.getKey(),key);
-        int endCompare = KeyCompareUtil.compare(last.getKey(),key);
+        Object first = bPlusTreeNode.getKeys()[0];
+        Object last = bPlusTreeNode.getKeys()[bPlusTreeNode.getKeys().length-1];
+        int startCompare = CompareUtil.compare(first,key);
+        int endCompare = CompareUtil.compare(last,key);
         if(startCompare>=0 && endCompare <0){
             return true;
         }
