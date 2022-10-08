@@ -20,12 +20,13 @@ public class TreeMappedFileTest {
         AddBufferParam addBufferParam = new AddBufferParam();
         String value="123";
         addBufferParam.setValue(value);
-        AddBufferResult addBufferResult = treeMappedFile.add(addBufferParam);
-        int size = addBufferResult.getSize();
-        int offset = addBufferResult.getOffset();
-        GetBufferResult getBufferResult = treeMappedFile.getBuffer(offset,size);
+        AddBufferResult addBufferResult1 = treeMappedFile.add(addBufferParam);
+        GetBufferResult getBufferResult = treeMappedFile.getBuffer(addBufferResult1.getOffset(),addBufferResult1.getSize());
         System.out.println(getBufferResult.getValue());
-
+        addBufferParam.setValue("456");
+        AddBufferResult addBufferResult2= treeMappedFile.add(addBufferParam);
+        GetBufferResult getBufferResult2 = treeMappedFile.getBuffer(addBufferResult2.getOffset(),addBufferResult2.getSize());
+        System.out.println(getBufferResult2.getValue());
     }
 
     @After
