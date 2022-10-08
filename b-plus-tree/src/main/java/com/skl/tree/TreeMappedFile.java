@@ -84,14 +84,6 @@ public class TreeMappedFile {
         }
     }
 
-    public void destroy()throws IOException{
-        randomAccessFile.close();
-        if(file.exists()){
-            boolean isDelete = file.delete();
-            System.out.println(isDelete);
-        }
-    }
-
     public void cleanup(){
         if((mappedByteBuffer == null) |(!mappedByteBuffer.isDirect())){
             return ;

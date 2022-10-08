@@ -28,7 +28,7 @@ public class TreeMappedFileTest {
     }
 
     @After
-    public void destroy()throws Exception{
-        treeMappedFile.destroy();
+    public void cleanup()throws Exception{
+        treeMappedFile.cleanup();
     }
 }
