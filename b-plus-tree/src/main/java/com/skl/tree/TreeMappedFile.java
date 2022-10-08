@@ -69,12 +69,13 @@ public class TreeMappedFile {
     }
     public GetBufferResult getBuffer(int physicalOffset, int size){
         try {
+            byte[] bytes = new byte[size];
             ByteBuffer byteBuffer = mappedByteBuffer.slice();
             byteBuffer.position(physicalOffset);
             ByteBuffer newByteBuffer = byteBuffer.slice();
-            byte[] bytes = new byte[size];
-            newByteBuffer.get(bytes);
             newByteBuffer.limit(bytes.length);
+            newByteBuffer.get(bytes);
+
             return GetBufferResult.createGetBufferResult().bytes(bytes).value(DecoderUtil.decoder(bytes));
         }catch (Exception e){
             e.printStackTrace();
