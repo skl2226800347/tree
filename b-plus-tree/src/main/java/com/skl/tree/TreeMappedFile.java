@@ -10,9 +10,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -88,4 +91,52 @@ public class TreeMappedFile {
             System.out.println(isDelete);
         }
     }
+
+    public void cleanup(){
+        if((mappedByteBuffer == null) |(!mappedByteBuffer.isDirect())){
+            return ;
+        }
+        try {
+            invoke(invoke(viewed(mappedByteBuffer), "cleaner"), "clean");
+            fileChannel.close();
+            randomAccessFile.close();
+            boolean isDelete =file.delete();
+            System.out.println(isDelete);
+        }catch (Throwable e){
+            e.printStackTrace();
+        }
+
+
+    }
+    public static ByteBuffer viewed(ByteBuffer buffer)throws Throwable{
+        String methodName="viewedAttach";
+        Method[] methods = buffer.getClass().getMethods();
+        for (int i=0;i<methods.length;i++){
+            if("attachment".equals(methods[0].getName())){
+                methodName="attachement";
+                break;
+            }
+        }
+        ByteBuffer viewBuffer = (ByteBuffer)invoke(buffer,methodName);
+        if(viewBuffer == null){
+            return buffer;
+        } else{
+            return viewed(viewBuffer);
+        }
+    }
+    public static Object invoke(Object obj,String methodName, Class... paramTypes){
+        return AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try{
+                    Method method = obj.getClass().getMethod(methodName,paramTypes);
+                    return method.invoke(obj);
+                }catch (Throwable e){
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
 }
