@@ -53,7 +53,7 @@ public class TreeMappedFile {
             byte[] bytes = EncoderUtil.encoder(addBufferParam.getValue());
             int size = bytes.length;
             physicalOffset.addAndGet(size);
-            byteBuffer.put(bytes,offset,bytes.length);
+            byteBuffer.put(bytes,0,bytes.length);
 
             System.out.println("mappedByteBuffer="+mappedByteBuffer);
           //  ByteBuffer byteBuffer = mappedByteBuffer.slice();
@@ -69,8 +69,6 @@ public class TreeMappedFile {
     }
     public GetBufferResult getBuffer(int physicalOffset, int size){
         try {
-
-            mappedByteBuffer.position(physicalOffset);
             ByteBuffer byteBuffer = mappedByteBuffer.slice();
             byteBuffer.position(physicalOffset);
             ByteBuffer newByteBuffer = byteBuffer.slice();
@@ -101,11 +99,11 @@ public class TreeMappedFile {
 
     }
     public static ByteBuffer viewed(ByteBuffer buffer)throws Throwable{
-        String methodName="viewedAttach";
+        String methodName="viewedBuffer";
         Method[] methods = buffer.getClass().getMethods();
         for (int i=0;i<methods.length;i++){
-            if("attachment".equals(methods[0].getName())){
-                methodName="attachement";
+            if("attachment".equals(methods[i].getName())){
+                methodName="attachment";
                 break;
             }
         }
@@ -122,6 +120,7 @@ public class TreeMappedFile {
             public Object run() {
                 try{
                     Method method = obj.getClass().getMethod(methodName,paramTypes);
+                    method.setAccessible(true);
                     return method.invoke(obj);
                 }catch (Throwable e){
                     e.printStackTrace();
