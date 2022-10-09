@@ -33,4 +33,10 @@ public class TreeMappedFileTest {
     public void cleanup()throws Exception{
         treeMappedFile.cleanup();
     }
+
+    @Test
+    public void getValue(){
+        int position=3;
+        System.out.println("position="+(position<<0));
+    }
 }
