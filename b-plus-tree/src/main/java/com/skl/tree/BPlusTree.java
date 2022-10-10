@@ -2,6 +2,7 @@ package com.skl.tree;
 
 import com.skl.tree.buffer.AddBufferRequest;
 import com.skl.tree.buffer.AddBufferResult;
+import com.skl.tree.constatns.Constans;
 import com.skl.tree.file.TreeMappedFile;
 import com.skl.tree.utils.CompareUtil;
 
@@ -17,7 +18,11 @@ public class BPlusTree implements Serializable {
         root = loadRoot();
     }
     private BPlusTreeNode loadRoot(){
-        int size = treeMappedFile.getSize(0);
+        int size = treeMappedFile.getSize(Constans.START_OFFSET);
+        if(Constans.ZERO<size){
+            treeMappedFile.getBuffer()
+            return size;
+        }
         return null;
     }
     public void insert(Object key){
