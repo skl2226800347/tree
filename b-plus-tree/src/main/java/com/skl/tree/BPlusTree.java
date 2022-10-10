@@ -1,5 +1,7 @@
 package com.skl.tree;
 
+import com.skl.tree.buffer.AddBufferRequest;
+import com.skl.tree.buffer.AddBufferResult;
 import com.skl.tree.file.TreeMappedFile;
 import com.skl.tree.utils.CompareUtil;
 
@@ -11,10 +13,13 @@ public class BPlusTree implements Serializable {
     private TreeMappedFile treeMappedFile;
     public BPlusTree(int degree,TreeMappedFile treeMappedFile){
         this.degree= degree;
-        root = new BPlusTreeNode(degree);
         this.treeMappedFile = treeMappedFile;
+        root = loadRoot();
     }
-
+    private BPlusTreeNode loadRoot(){
+        int size = treeMappedFile.getSize(0);
+        return null;
+    }
     public void insert(Object key){
         boolean isCanInsert = isCanInsertCondition(root,key);
         if(isCanInsert){
@@ -31,7 +36,7 @@ public class BPlusTree implements Serializable {
         for(int i=0;i<keyLength;i++) {
             Object curKey=bPlusTreeNode.getKeys()[i];
             if(curKey == null){
-
+                AddBufferResult addBufferResult = treeMappedFile.add(AddBufferRequest.createAddBufferRequest(key));
             }else {
                 int compareValue = CompareUtil.compare(curKey, key);
             }

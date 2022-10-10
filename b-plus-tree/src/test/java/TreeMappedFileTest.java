@@ -1,5 +1,5 @@
 import com.skl.tree.file.TreeMappedFile;
-import com.skl.tree.buffer.AddBufferParam;
+import com.skl.tree.buffer.AddBufferRequest;
 import com.skl.tree.buffer.AddBufferResult;
 import com.skl.tree.buffer.GetBufferResult;
 import org.junit.After;
@@ -15,7 +15,7 @@ public class TreeMappedFileTest {
     }
     @Test
     public void addAndGet(){
-        AddBufferParam addBufferParam = new AddBufferParam();
+        AddBufferRequest addBufferParam = new AddBufferRequest();
         String value="123";
         addBufferParam.setValue(value);
         AddBufferResult addBufferResult1 = treeMappedFile.add(addBufferParam);

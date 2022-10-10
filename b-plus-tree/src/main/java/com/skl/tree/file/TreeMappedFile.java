@@ -1,6 +1,6 @@
 package com.skl.tree.file;
 
-import com.skl.tree.buffer.AddBufferParam;
+import com.skl.tree.buffer.AddBufferRequest;
 import com.skl.tree.buffer.AddBufferResult;
 import com.skl.tree.buffer.GetBufferResult;
 import com.skl.tree.utils.DecoderUtil;
@@ -18,7 +18,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-
 public class TreeMappedFile {
     private static final int POSITION=0;
     private static final int FILE_SIZE = 1024*1024*1024;
@@ -43,7 +42,7 @@ public class TreeMappedFile {
         }
     }
 
-    public AddBufferResult add(AddBufferParam addBufferParam){
+    public AddBufferResult add(AddBufferRequest addBufferParam){
         Objects.requireNonNull(addBufferParam.getValue()," value is not null");
         try {
             int offset = physicalOffset.get();
@@ -52,14 +51,8 @@ public class TreeMappedFile {
             byte[] bytes = EncoderUtil.encoder(addBufferParam.getValue());
             int size = bytes.length;
             physicalOffset.addAndGet(size);
+            byteBuffer.putInt(size);
             byteBuffer.put(bytes,0,bytes.length);
-
-            System.out.println("mappedByteBuffer="+mappedByteBuffer);
-          //  ByteBuffer byteBuffer = mappedByteBuffer.slice();
-           // System.out.println("byteBuffer="+byteBuffer);
-            //System.out.println("mappedByteBuffer="+mappedByteBuffer);
-            //System.out.println("byteBuffer="+byteBuffer);
-            System.out.println("mappedByteBuffer="+mappedByteBuffer);
             return AddBufferResult.createAddBufferResult().offset(offset).size(bytes.length);
         }catch (Throwable e){
             e.printStackTrace();
@@ -74,10 +67,21 @@ public class TreeMappedFile {
             ByteBuffer newByteBuffer = byteBuffer.slice();
             newByteBuffer.limit(bytes.length);
             newByteBuffer.get(bytes);
-
             return GetBufferResult.createGetBufferResult().bytes(bytes).value(DecoderUtil.decoder(bytes));
         }catch (Exception e){
             e.printStackTrace();
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public int getSize(int physicalOffset){
+        try{
+            ByteBuffer byteBuffer =mappedByteBuffer.slice();
+            byteBuffer.position(physicalOffset);
+            ByteBuffer newByteBuffer = byteBuffer.slice();
+            int size = newByteBuffer.getInt();
+            return size;
+        }catch (Exception e){
             throw new IllegalArgumentException(e);
         }
     }
