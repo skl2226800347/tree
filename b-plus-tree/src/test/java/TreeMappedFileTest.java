@@ -25,6 +25,8 @@ public class TreeMappedFileTest {
         System.out.println(getBufferResult.getValue());
         addBufferParam.setValue("456");
         AddBufferResult addBufferResult2= treeMappedFile.add(addBufferParam);
+        addBufferParam.setValue("890");
+        treeMappedFile.add(addBufferParam);
         GetBufferResult getBufferResult2 = treeMappedFile.getBuffer(addBufferResult2.getOffset(),addBufferResult2.getSize());
         System.out.println(getBufferResult2.getValue());
     }
@@ -36,7 +38,8 @@ public class TreeMappedFileTest {
 
     @Test
     public void getValue(){
-        int position=3;
+        final int position = 3;
         System.out.println("position="+(position<<0));
+        System.out.println("position="+(position>>0));
     }
 }
