@@ -1,4 +1,4 @@
-package com.skl.tree;
+package com.skl.tree.file;
 
 import com.skl.tree.buffer.AddBufferParam;
 import com.skl.tree.buffer.AddBufferResult;
@@ -18,7 +18,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class TreeMappedFile {
     private static final int POSITION=0;

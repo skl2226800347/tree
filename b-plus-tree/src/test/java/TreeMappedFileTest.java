@@ -1,12 +1,10 @@
-import com.skl.tree.TreeMappedFile;
+import com.skl.tree.file.TreeMappedFile;
 import com.skl.tree.buffer.AddBufferParam;
 import com.skl.tree.buffer.AddBufferResult;
 import com.skl.tree.buffer.GetBufferResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
 
 public class TreeMappedFileTest {
     private String fileName="d:/1.log";
