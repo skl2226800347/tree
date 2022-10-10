@@ -15,8 +15,8 @@ public class TreeMappedFileTest {
     }
     @Test
     public void addAndGet(){
-        AddBufferRequest addBufferParam = new AddBufferRequest();
         String value="123";
+        AddBufferRequest addBufferParam = new AddBufferRequest(value);
         addBufferParam.setValue(value);
         AddBufferResult addBufferResult1 = treeMappedFile.add(addBufferParam);
         GetBufferResult getBufferResult = treeMappedFile.getBuffer(addBufferResult1.getOffset(),addBufferResult1.getSize());
