@@ -1,8 +1,11 @@
 package com.skl.tree.file;
 
+import com.skl.tree.BPlusTreeNode;
 import com.skl.tree.buffer.AddBufferRequest;
-import com.skl.tree.buffer.AddBufferResult;
+import com.skl.tree.buffer.BufferResult;
 import com.skl.tree.buffer.GetBufferResult;
+import com.skl.tree.buffer.ModifyBufferRequest;
+import com.skl.tree.constatns.Constans;
 import com.skl.tree.utils.DecoderUtil;
 import com.skl.tree.utils.EncoderUtil;
 
@@ -26,7 +29,8 @@ public class TreeMappedFile {
     private RandomAccessFile randomAccessFile;
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
-    private AtomicInteger physicalOffset= new AtomicInteger(0);
+    private AtomicInteger writeOffset= new AtomicInteger(0);
+    private AtomicInteger writePageOffset= new AtomicInteger(0);
 
     public TreeMappedFile(String fileName){
         try {
@@ -42,23 +46,50 @@ public class TreeMappedFile {
         }
     }
 
-    public AddBufferResult add(AddBufferRequest addBufferParam){
-        Objects.requireNonNull(addBufferParam.getValue()," value is not null");
+    public BufferResult add(AddBufferRequest addBufferRequest){
+        Objects.requireNonNull(addBufferRequest.getValue()," value is not null");
         try {
-            int offset = physicalOffset.get();
+            int offset = writeOffset.get();
+            writeOffset.addAndGet(Constans.OS_PAGE);
+            byte[] bytes = EncoderUtil.encoder(addBufferRequest.getValue());
+            int size = bytes.length;
+
+            if(addBufferRequest.getValue() instanceof BPlusTreeNode) {
+                ((BPlusTreeNode) addBufferRequest.getValue()).setStartOffset(offset);
+            }
+
             ByteBuffer byteBuffer = mappedByteBuffer.slice();
             byteBuffer.position(offset);
-            byte[] bytes = EncoderUtil.encoder(addBufferParam.getValue());
-            int size = bytes.length;
-            physicalOffset.addAndGet(size);
             byteBuffer.putInt(size);
             byteBuffer.put(bytes,0,bytes.length);
-            return AddBufferResult.createAddBufferResult().offset(offset).size(bytes.length);
+            return BufferResult.createBufferResult().offset(offset).size(bytes.length)
+                   .pageSize(Constans.OS_PAGE);
         }catch (Throwable e){
             e.printStackTrace();
             throw new IllegalArgumentException(e);
         }
     }
+
+    public BufferResult modify(ModifyBufferRequest request){
+        ByteBuffer byteBuffer = mappedByteBuffer.slice();
+        byteBuffer.position(request.getPageOffset());
+        try {
+            byte[] bytes = EncoderUtil.encoder(request.getValue());
+
+            ByteBuffer dataBuffer = ByteBuffer.allocate(bytes.length);
+            dataBuffer.limit(Constans.OS_PAGE);
+            dataBuffer.putInt(bytes.length);
+            dataBuffer.put(bytes);
+
+            byteBuffer.put(dataBuffer.array(),0,dataBuffer.array().length);
+
+            return BufferResult.createBufferResult().offset(request.getPageOffset())
+                    .offset(request.getPageOffset()).size(bytes.length);
+        }catch (Throwable e){
+            throw new IllegalArgumentException(e);
+        }
+    }
+
     public GetBufferResult getBuffer(int physicalOffset, int size){
         try {
             byte[] bytes = new byte[size];
@@ -67,7 +98,8 @@ public class TreeMappedFile {
             ByteBuffer newByteBuffer = byteBuffer.slice();
             newByteBuffer.limit(bytes.length);
             newByteBuffer.get(bytes);
-            return GetBufferResult.createGetBufferResult().bytes(bytes).value(DecoderUtil.decoder(bytes));
+            return GetBufferResult.createGetBufferResult().bytes(bytes)
+                    .value(DecoderUtil.decoder(bytes));
         }catch (Exception e){
             e.printStackTrace();
             throw new IllegalArgumentException(e);

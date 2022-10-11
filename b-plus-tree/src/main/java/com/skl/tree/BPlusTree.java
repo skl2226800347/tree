@@ -1,7 +1,9 @@
 package com.skl.tree;
 
 import com.skl.tree.buffer.AddBufferRequest;
-import com.skl.tree.buffer.AddBufferResult;
+import com.skl.tree.buffer.BufferResult;
+import com.skl.tree.buffer.GetBufferResult;
+import com.skl.tree.buffer.ModifyBufferRequest;
 import com.skl.tree.constatns.Constans;
 import com.skl.tree.file.TreeMappedFile;
 import com.skl.tree.utils.CompareUtil;
@@ -17,14 +19,7 @@ public class BPlusTree implements Serializable {
         this.treeMappedFile = treeMappedFile;
         root = loadRoot();
     }
-    private BPlusTreeNode loadRoot(){
-        int size = treeMappedFile.getSize(Constans.START_OFFSET);
-        if(Constans.ZERO<size){
-            treeMappedFile.getBuffer()
-            return size;
-        }
-        return null;
-    }
+
     public void insert(Object key){
         boolean isCanInsert = isCanInsertCondition(root,key);
         if(isCanInsert){
@@ -38,10 +33,20 @@ public class BPlusTree implements Serializable {
     }
     private void doInsert(Object key,BPlusTreeNode bPlusTreeNode){
         int keyLength = bPlusTreeNode.getKeys().length;
+        boolean isStored = bPlusTreeNode.isStored();
         for(int i=0;i<keyLength;i++) {
             Object curKey=bPlusTreeNode.getKeys()[i];
             if(curKey == null){
-                AddBufferResult addBufferResult = treeMappedFile.add(AddBufferRequest.createAddBufferRequest(key));
+                //tree节点第一次存储到文件中
+                if(isStored==false && i==Constans.ZERO) {
+                    bPlusTreeNode.getKeys()[i]=key;
+                    BufferResult addBufferResult = treeMappedFile.add(AddBufferRequest.createAddBufferRequest(bPlusTreeNode));
+                    bPlusTreeNode.setStored(true);
+                    return;
+                    //不是第一次插入，更新覆盖
+                }else if (isStored == true){
+                    treeMappedFile.modify(ModifyBufferRequest.createModifyBufferRequest(bPlusTreeNode));
+                }
             }else {
                 int compareValue = CompareUtil.compare(curKey, key);
             }
@@ -61,6 +66,28 @@ public class BPlusTree implements Serializable {
             return true;
         }
         return  false;
+    }
+
+    /**
+     * 加载根节点
+     */
+    protected BPlusTreeNode loadRoot(){
+        int size = treeMappedFile.getSize(Constans.START_OFFSET);
+        if(size > Constans.ZERO){
+            return doLoadRootFromDisk(size);
+        }
+        //插入
+        BPlusTreeNode root = new BPlusTreeNode(this.degree);
+        root.setStored(false);
+        return root;
+    }
+
+    private BPlusTreeNode doLoadRootFromDisk(int size){
+        int offset = Constans.START_OFFSET+Constans.INT_LENGTH;
+        GetBufferResult getBufferResult = treeMappedFile.getBuffer(offset,size);
+        BPlusTreeNode bPlusTreeNode =  (BPlusTreeNode)getBufferResult.getValue();
+        bPlusTreeNode.setStored(true);
+        return bPlusTreeNode;
     }
 
 }

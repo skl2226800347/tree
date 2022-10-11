@@ -1,6 +1,6 @@
 import com.skl.tree.file.TreeMappedFile;
 import com.skl.tree.buffer.AddBufferRequest;
-import com.skl.tree.buffer.AddBufferResult;
+import com.skl.tree.buffer.BufferResult;
 import com.skl.tree.buffer.GetBufferResult;
 import org.junit.After;
 import org.junit.Before;
@@ -18,11 +18,11 @@ public class TreeMappedFileTest {
         String value="123";
         AddBufferRequest addBufferParam = new AddBufferRequest(value);
         addBufferParam.setValue(value);
-        AddBufferResult addBufferResult1 = treeMappedFile.add(addBufferParam);
+        BufferResult addBufferResult1 = treeMappedFile.add(addBufferParam);
         GetBufferResult getBufferResult = treeMappedFile.getBuffer(addBufferResult1.getOffset(),addBufferResult1.getSize());
         System.out.println(getBufferResult.getValue());
         addBufferParam.setValue("456");
-        AddBufferResult addBufferResult2= treeMappedFile.add(addBufferParam);
+        BufferResult addBufferResult2= treeMappedFile.add(addBufferParam);
         addBufferParam.setValue("890");
         treeMappedFile.add(addBufferParam);
         GetBufferResult getBufferResult2 = treeMappedFile.getBuffer(addBufferResult2.getOffset(),addBufferResult2.getSize());
