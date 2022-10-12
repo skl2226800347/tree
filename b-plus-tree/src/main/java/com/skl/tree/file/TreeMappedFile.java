@@ -55,13 +55,19 @@ public class TreeMappedFile {
             int size = bytes.length;
 
             if(addBufferRequest.getValue() instanceof BPlusTreeNode) {
-                ((BPlusTreeNode) addBufferRequest.getValue()).setStartOffset(offset);
+                ((BPlusTreeNode) addBufferRequest.getValue())
+                        .startOffset(offset).stored(true);
             }
 
             ByteBuffer byteBuffer = mappedByteBuffer.slice();
             byteBuffer.position(offset);
-            byteBuffer.putInt(size);
-            byteBuffer.put(bytes,0,bytes.length);
+
+            ByteBuffer dataByteBuffer = ByteBuffer.allocate(bytes.length+Constans.INT_LENGTH);
+            dataByteBuffer.limit(Constans.OS_PAGE);
+            dataByteBuffer.putInt(size);
+            dataByteBuffer.put(bytes,0,bytes.length);
+
+            byteBuffer.put(dataByteBuffer.array(),0,bytes.length);
             return BufferResult.createBufferResult().offset(offset).size(bytes.length)
                    .pageSize(Constans.OS_PAGE);
         }catch (Throwable e){

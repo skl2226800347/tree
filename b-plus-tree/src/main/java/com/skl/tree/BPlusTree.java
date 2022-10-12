@@ -40,7 +40,6 @@ public class BPlusTree implements Serializable {
                 if(isStored==false && i==Constans.ZERO) {
                     bPlusTreeNode.getKeys()[i]=key;
                     BufferResult addBufferResult = treeMappedFile.add(AddBufferRequest.createAddBufferRequest(bPlusTreeNode));
-                    bPlusTreeNode.setStored(true);
                     return;
                     //不是第一次插入，更新覆盖
                 }else if (isStored == true){
@@ -71,6 +70,9 @@ public class BPlusTree implements Serializable {
             return false;
         }
         Object first = bPlusTreeNode.getKeys()[0];
+        if(first == null){
+            return true;
+        }
         Object last = bPlusTreeNode.getKeys()[bPlusTreeNode.getKeys().length-1];
         int startCompare = CompareUtil.compare(first,key);
         int endCompare = CompareUtil.compare(last,key);

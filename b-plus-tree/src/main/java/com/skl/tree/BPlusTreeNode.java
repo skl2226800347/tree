@@ -5,7 +5,7 @@ import com.skl.tree.utils.CompareUtil;
 
 import java.io.Serializable;
 
-public class BPlusTreeNode implements Serializable {
+public class BPlusTreeNode<T extends BPlusTreeNode> implements Serializable {
     private boolean root=false;
     private int degree;
     private int startOffset;
@@ -50,6 +50,20 @@ public class BPlusTreeNode implements Serializable {
 
     public void setStartOffset(int startOffset) {
         this.startOffset = startOffset;
+    }
+
+    public T startOffset(int startOffset){
+        this.startOffset = startOffset;
+        return self();
+    }
+
+    public T stored(boolean stored){
+        this.stored = stored;
+        return self();
+    }
+
+    public T self(){
+        return (T)this;
     }
 
     public int compare(Object key){

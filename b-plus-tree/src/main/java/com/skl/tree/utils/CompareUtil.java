@@ -26,11 +26,11 @@ public class CompareUtil {
 
 
     public static final int compare(Object preObj,Object obj){
-        if(preObj == null){
-            throw new NullPointerException("preObj is null");
-        }
         if(obj == null) {
             throw  new NullPointerException("obj is null");
+        }
+        if(preObj == null){
+            return CompareConstants.GREATER;
         }
         if(preObj.getClass() != obj.getClass()) {
             Objects.requireNonNull(preObj,"newObj not is null");
