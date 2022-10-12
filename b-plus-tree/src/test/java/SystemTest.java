@@ -4,7 +4,18 @@ import org.junit.Test;
 public class SystemTest {
 
     @Test
-    public void arraycopy(){
+    public void arraycopy1(){
+        String[] src=new String[4];
+        src[0]="a";
+        src[1]="b";
+        src[2]="c";
+        src[3]="d";
+        System.arraycopy(src,1,src,2,2);
+        System.out.println("src:"+JSONObject.toJSONString(src));
+    }
+
+    @Test
+    public void arraycopy2(){
         String[] src=new String[4];
         src[0]="a";
         src[1]="b";

@@ -49,13 +49,17 @@ public class BPlusTree implements Serializable {
             }else {
                 int compareValue = CompareUtil.compare(curKey, key);
                 //等于
+                int storeNumber = bPlusTreeNode.getStoreNumber();
+                int availableNumber = (keyLength-storeNumber);
+                int moveLength = (storeNumber-i);
                 if(CompareConstants.EQUAL==compareValue) {
-
-                    //大于
-                } else if(compareValue > CompareConstants.EQUAL) {
-                    //小于
-                } else {
-
+                    System.arraycopy(bPlusTreeNode.getKeys(),i,bPlusTreeNode.getKeys(),i+1,moveLength);
+                    bPlusTreeNode.getKeys()[i]=curKey;
+                } else if(compareValue > CompareConstants.EQUAL) {//大于
+                    continue;
+                } else {//小于
+                    System.arraycopy(bPlusTreeNode.getKeys(),i,bPlusTreeNode.getKeys(),i+1,moveLength);
+                    bPlusTreeNode.getKeys()[i]=curKey;
                 }
             }
         }

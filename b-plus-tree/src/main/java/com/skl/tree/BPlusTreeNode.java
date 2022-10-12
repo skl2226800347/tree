@@ -12,10 +12,13 @@ public class BPlusTreeNode implements Serializable {
     private Object[] keys;
     private Offset[] offsets;
     private boolean stored;
+    private int number;
+    private int storeNumber;
     public BPlusTreeNode(int degree){
         this.degree = degree;
-        keys= new Object[degree*2];
-        offsets = new Offset[degree*2];
+        this.number = (degree *2);
+        keys= new Object[number];
+        offsets = new Offset[number];
     }
 
     public BPlusTreeNode(int degree,Object key){
@@ -80,5 +83,21 @@ public class BPlusTreeNode implements Serializable {
 
     public void setStored(boolean stored) {
         this.stored = stored;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    public int getStoreNumber() {
+        return storeNumber;
+    }
+
+    public void setStoreNumber(int storeNumber) {
+        this.storeNumber = storeNumber;
     }
 }
