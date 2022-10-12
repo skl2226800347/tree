@@ -18,8 +18,6 @@ public class BufferRequest<T extends BufferRequest> implements Serializable {
     }
 
 
-    public T self(){
-        return (T)this;
-    }
+
 
 }

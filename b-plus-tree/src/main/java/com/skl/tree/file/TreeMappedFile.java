@@ -72,7 +72,7 @@ public class TreeMappedFile {
 
     public BufferResult modify(ModifyBufferRequest request){
         ByteBuffer byteBuffer = mappedByteBuffer.slice();
-        byteBuffer.position(request.getPageOffset());
+        byteBuffer.position(request.getStartOffset());
         try {
             byte[] bytes = EncoderUtil.encoder(request.getValue());
 
@@ -83,8 +83,8 @@ public class TreeMappedFile {
 
             byteBuffer.put(dataBuffer.array(),0,dataBuffer.array().length);
 
-            return BufferResult.createBufferResult().offset(request.getPageOffset())
-                    .offset(request.getPageOffset()).size(bytes.length);
+            return BufferResult.createBufferResult().offset(request.getStartOffset())
+                    .offset(request.getStartOffset()).size(bytes.length);
         }catch (Throwable e){
             throw new IllegalArgumentException(e);
         }

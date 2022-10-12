@@ -1,6 +1,6 @@
 package com.skl.tree.buffer;
 
-public class ModifyBufferRequest<T extends BufferRequest> extends BufferRequest{
+public class ModifyBufferRequest<T extends ModifyBufferRequest> extends BufferRequest{
     private int startOffset;
     public static final ModifyBufferRequest createModifyBufferRequest(Object value){
         ModifyBufferRequest request = new ModifyBufferRequest(value);
@@ -21,5 +21,9 @@ public class ModifyBufferRequest<T extends BufferRequest> extends BufferRequest{
     public T startOffset(int startOffset){
         this.startOffset = startOffset;
         return self();
+    }
+
+    public T self(){
+        return (T)this;
     }
 }

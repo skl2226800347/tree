@@ -1,13 +1,12 @@
 package com.skl.tree;
-
 import com.skl.tree.buffer.AddBufferRequest;
 import com.skl.tree.buffer.BufferResult;
 import com.skl.tree.buffer.GetBufferResult;
 import com.skl.tree.buffer.ModifyBufferRequest;
+import com.skl.tree.constatns.CompareConstants;
 import com.skl.tree.constatns.Constans;
 import com.skl.tree.file.TreeMappedFile;
 import com.skl.tree.utils.CompareUtil;
-
 import java.io.Serializable;
 
 public class BPlusTree implements Serializable {
@@ -45,10 +44,19 @@ public class BPlusTree implements Serializable {
                     return;
                     //不是第一次插入，更新覆盖
                 }else if (isStored == true){
-                    treeMappedFile.modify(ModifyBufferRequest.createModifyBufferRequest(bPlusTreeNode));
+                    treeMappedFile.modify(ModifyBufferRequest.createModifyBufferRequest(bPlusTreeNode).startOffset(bPlusTreeNode.getStartOffset()));
                 }
             }else {
                 int compareValue = CompareUtil.compare(curKey, key);
+                //等于
+                if(CompareConstants.EQUAL==compareValue) {
+
+                    //大于
+                } else if(compareValue > CompareConstants.EQUAL) {
+                    //小于
+                } else {
+
+                }
             }
         }
     }
