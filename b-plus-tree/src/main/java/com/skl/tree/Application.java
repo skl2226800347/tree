@@ -16,7 +16,6 @@ public class Application {
     }
 
     public static final void main(String[]args) throws Exception{
-
         BPlusTree bPlusTree = new BPlusTree(DEGREE,treeMappedFile);
         bPlusTree.insert("333");
     }
