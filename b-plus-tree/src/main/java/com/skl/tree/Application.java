@@ -10,7 +10,7 @@ public class Application {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
-                treeMappedFile.cleanup();
+                //treeMappedFile.cleanup();
             }
         }));
     }

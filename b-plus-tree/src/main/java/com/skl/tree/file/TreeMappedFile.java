@@ -1,5 +1,7 @@
 package com.skl.tree.file;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.skl.tree.BPlusTreeNode;
 import com.skl.tree.buffer.AddBufferRequest;
 import com.skl.tree.buffer.BufferResult;
@@ -51,23 +53,27 @@ public class TreeMappedFile {
         try {
             int offset = writeOffset.get();
             writeOffset.addAndGet(Constans.OS_PAGE);
-            byte[] bytes = EncoderUtil.encoder(addBufferRequest.getValue());
-            int size = bytes.length;
+
 
             if(addBufferRequest.getValue() instanceof BPlusTreeNode) {
                 ((BPlusTreeNode) addBufferRequest.getValue())
                         .startOffset(offset).stored(true);
             }
 
+            System.out.println("value:"+ JSONObject.toJSONString(addBufferRequest.getValue()));
+            byte[] bytes = EncoderUtil.encoder(addBufferRequest.getValue());
+            System.out.println("bytes.length:"+bytes.length);
+            System.out.println("bytes:"+JSONObject.toJSONString(bytes));
+            int size = bytes.length;
+
             ByteBuffer byteBuffer = mappedByteBuffer.slice();
             byteBuffer.position(offset);
 
             ByteBuffer dataByteBuffer = ByteBuffer.allocate(bytes.length+Constans.INT_LENGTH);
-            //dataByteBuffer.limit(Constans.OS_PAGE);
             dataByteBuffer.putInt(size);
             dataByteBuffer.put(bytes,0,bytes.length);
 
-            byteBuffer.put(dataByteBuffer.array(),0,bytes.length);
+            byteBuffer.put(dataByteBuffer.array(),0,dataByteBuffer.array().length);
             return BufferResult.createBufferResult().offset(offset).size(bytes.length)
                    .pageSize(Constans.OS_PAGE);
         }catch (Throwable e){
@@ -104,6 +110,7 @@ public class TreeMappedFile {
             ByteBuffer newByteBuffer = byteBuffer.slice();
             newByteBuffer.limit(bytes.length);
             newByteBuffer.get(bytes);
+            System.out.println(JSONObject.toJSONString(bytes));
             return GetBufferResult.createGetBufferResult().bytes(bytes)
                     .value(DecoderUtil.decoder(bytes));
         }catch (Exception e){
