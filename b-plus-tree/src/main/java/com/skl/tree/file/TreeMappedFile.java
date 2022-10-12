@@ -63,7 +63,7 @@ public class TreeMappedFile {
             byteBuffer.position(offset);
 
             ByteBuffer dataByteBuffer = ByteBuffer.allocate(bytes.length+Constans.INT_LENGTH);
-            dataByteBuffer.limit(Constans.OS_PAGE);
+            //dataByteBuffer.limit(Constans.OS_PAGE);
             dataByteBuffer.putInt(size);
             dataByteBuffer.put(bytes,0,bytes.length);
 
