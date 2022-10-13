@@ -31,9 +31,7 @@ public class TreeMappedFile {
     private RandomAccessFile randomAccessFile;
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
-    private AtomicInteger writeOffset= new AtomicInteger(0);
-    private AtomicInteger writePageOffset= new AtomicInteger(0);
-
+    private AtomicInteger writeOffset;
     public TreeMappedFile(String fileName){
         try {
             this.fileName = fileName;
@@ -41,6 +39,7 @@ public class TreeMappedFile {
             randomAccessFile = new RandomAccessFile(file, "rw");
             fileChannel = randomAccessFile.getChannel();
             mappedByteBuffer =fileChannel.map(FileChannel.MapMode.READ_WRITE,POSITION,FILE_SIZE);
+            init();
         }catch (FileNotFoundException e){
             throw new RuntimeException(e);
         }catch (IOException e){
@@ -48,10 +47,11 @@ public class TreeMappedFile {
         }
     }
 
+
     public BufferResult add(AddBufferRequest addBufferRequest){
         Objects.requireNonNull(addBufferRequest.getValue()," value is not null");
         try {
-            int offset = writeOffset.get();
+            final int offset = writeOffset.get();
             writeOffset.addAndGet(Constans.OS_PAGE);
 
 
@@ -69,9 +69,18 @@ public class TreeMappedFile {
             ByteBuffer byteBuffer = mappedByteBuffer.slice();
             byteBuffer.position(offset);
 
-            ByteBuffer dataByteBuffer = ByteBuffer.allocate(bytes.length+Constans.INT_LENGTH);
-            dataByteBuffer.putInt(size);
-            dataByteBuffer.put(bytes,0,bytes.length);
+            ByteBuffer dataByteBuffer;
+            if(offset > Constans.ZERO) {
+                dataByteBuffer = ByteBuffer.allocate(bytes.length + Constans.INT_LENGTH);
+                dataByteBuffer.putInt(size);
+            }else if(offset == Constans.ZERO){
+                dataByteBuffer = ByteBuffer.allocate(bytes.length + Constans.INT_LENGTH+Constans.INT_LENGTH);
+                dataByteBuffer.putInt(writeOffset.intValue());
+                dataByteBuffer.putInt(size);
+            } else{
+                throw new RuntimeException("offset:"+offset+"  不支持");
+            }
+            dataByteBuffer.put(bytes, 0, bytes.length);
 
             byteBuffer.put(dataByteBuffer.array(),0,dataByteBuffer.array().length);
             return BufferResult.createBufferResult().offset(offset).size(bytes.length)
@@ -110,7 +119,6 @@ public class TreeMappedFile {
             ByteBuffer newByteBuffer = byteBuffer.slice();
             newByteBuffer.limit(bytes.length);
             newByteBuffer.get(bytes);
-            System.out.println(JSONObject.toJSONString(bytes));
             return GetBufferResult.createGetBufferResult().bytes(bytes)
                     .value(DecoderUtil.decoder(bytes));
         }catch (Exception e){
@@ -177,6 +185,11 @@ public class TreeMappedFile {
                 }
             }
         });
+    }
+
+    protected void init(){
+        int writeOffset = getSize(Constans.START_OFFSET);
+        this.writeOffset = new AtomicInteger(writeOffset);
     }
 
 }

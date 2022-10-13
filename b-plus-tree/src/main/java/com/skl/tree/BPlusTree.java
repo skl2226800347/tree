@@ -20,46 +20,69 @@ public class BPlusTree implements Serializable {
     }
 
     public void insert(Object key){
-        boolean isCanInsert = isCanInsertCondition(root,key);
-        if(isCanInsert){
-            doInsert(key,root);
-            return ;
+        BPlusTreeNode plusTreeNode= this.root;
+        Object firstKey = plusTreeNode.getKeys()[0];
+        if(firstKey == null){
+            doInsert(key,plusTreeNode,0);
+            return;
         }
-        for(int i=0 ;i<root.getKeys().length;i++){
-            Object preKey = root.getKeys()[i];
+        if(firstKey != null){
+            int compareValue = CompareUtil.compare(firstKey,key);
+            //当前b+tree节点最小值仍然大于key，需要迁移到左边b+tree节点
+            if(compareValue <=Constans.ZERO){
 
+            }
+        }
+        Object lastKey = plusTreeNode.getKeys()[plusTreeNode.getKeys().length-1];
+        if(lastKey != null) {
+            int compareValue = CompareUtil.compare(lastKey, key);
+            //当前b+tree节点最大值仍然小于key，需要迁移到右边b+tree节点
+            if(compareValue > Constans.ZERO){
+
+            }
+        }
+        for(int index=0 ;index<plusTreeNode.getKeys().length;index++){
+            Object curKey = plusTreeNode.getKeys()[index];
+            if(curKey == null){
+                doInsert(key,plusTreeNode,index);
+                return;
+            }
+            int compareValue = CompareUtil.compare(curKey,key);
+            if(compareValue <=Constans.ZERO){
+                doInsert(key,plusTreeNode,index);
+                break;
+            } else {
+                continue;
+            }
         }
     }
-    private void doInsert(Object key,BPlusTreeNode bPlusTreeNode){
+    private void doInsert(Object key,BPlusTreeNode bPlusTreeNode,int index){
         int keyLength = bPlusTreeNode.getKeys().length;
         boolean isStored = bPlusTreeNode.isStored();
-        for(int i=0;i<keyLength;i++) {
-            Object curKey=bPlusTreeNode.getKeys()[i];
-            if(curKey == null){
-                //tree节点第一次存储到文件中
-                if(isStored==false && i==Constans.ZERO) {
-                    bPlusTreeNode.getKeys()[i]=key;
-                    BufferResult addBufferResult = treeMappedFile.add(AddBufferRequest.createAddBufferRequest(bPlusTreeNode));
-                    return;
-                    //不是第一次插入，更新覆盖
-                }else if (isStored == true){
-                    treeMappedFile.modify(ModifyBufferRequest.createModifyBufferRequest(bPlusTreeNode).startOffset(bPlusTreeNode.getStartOffset()));
-                }
-            }else {
-                int compareValue = CompareUtil.compare(curKey, key);
-                //等于
-                int storeNumber = bPlusTreeNode.getStoreNumber();
-                int availableNumber = (keyLength-storeNumber);
-                int moveLength = (storeNumber-i);
-                if(CompareConstants.EQUAL==compareValue) {
-                    System.arraycopy(bPlusTreeNode.getKeys(),i,bPlusTreeNode.getKeys(),i+1,moveLength);
-                    bPlusTreeNode.getKeys()[i]=curKey;
-                } else if(compareValue > CompareConstants.EQUAL) {//大于
-                    continue;
-                } else {//小于
-                    System.arraycopy(bPlusTreeNode.getKeys(),i,bPlusTreeNode.getKeys(),i+1,moveLength);
-                    bPlusTreeNode.getKeys()[i]=curKey;
-                }
+        Object curKey=bPlusTreeNode.getKeys()[index];
+        if(curKey == null){
+            //tree节点第一次存储到文件中
+            if(isStored==false && index==Constans.ZERO) {
+                bPlusTreeNode.getKeys()[index]=key;
+                treeMappedFile.add(AddBufferRequest.createAddBufferRequest(bPlusTreeNode));
+                return;
+                //不是第一次插入，更新覆盖
+            }else if (isStored == true){
+                treeMappedFile.modify(ModifyBufferRequest.createModifyBufferRequest(bPlusTreeNode).startOffset(bPlusTreeNode.getStartOffset()));
+            }
+        }else {
+            int compareValue = CompareUtil.compare(curKey, key);
+            //等于
+            int storeNumber = bPlusTreeNode.getStoreNumber();
+            int moveLength = (storeNumber-index);
+            if(CompareConstants.EQUAL==compareValue) {
+                System.arraycopy(bPlusTreeNode.getKeys(),index,bPlusTreeNode.getKeys(),index+1,moveLength);
+                bPlusTreeNode.getKeys()[index]=curKey;
+            } else if(compareValue > CompareConstants.EQUAL) {//大于
+
+            } else {//小于
+                System.arraycopy(bPlusTreeNode.getKeys(),index,bPlusTreeNode.getKeys(),index+1,moveLength);
+                bPlusTreeNode.getKeys()[index]=curKey;
             }
         }
     }
@@ -74,6 +97,9 @@ public class BPlusTree implements Serializable {
             return true;
         }
         Object last = bPlusTreeNode.getKeys()[bPlusTreeNode.getKeys().length-1];
+        if(last == null){
+            return true;
+        }
         int startCompare = CompareUtil.compare(first,key);
         int endCompare = CompareUtil.compare(last,key);
         if(startCompare>=0 && endCompare <0){
@@ -86,7 +112,7 @@ public class BPlusTree implements Serializable {
      * 加载根节点
      */
     protected BPlusTreeNode loadRoot(){
-        int size = treeMappedFile.getSize(Constans.START_OFFSET);
+        int size = treeMappedFile.getSize(Constans.START_OFFSET+Constans.INT_LENGTH);
         if(size > Constans.ZERO){
             return doLoadRootFromDisk(size);
         }
@@ -97,7 +123,7 @@ public class BPlusTree implements Serializable {
     }
 
     private BPlusTreeNode doLoadRootFromDisk(int size){
-        int offset = Constans.START_OFFSET+Constans.INT_LENGTH;
+        int offset = Constans.START_OFFSET+Constans.INT_LENGTH+Constans.INT_LENGTH;
         GetBufferResult getBufferResult = treeMappedFile.getBuffer(offset,size);
         BPlusTreeNode bPlusTreeNode =  (BPlusTreeNode)getBufferResult.getValue();
         bPlusTreeNode.setStored(true);
