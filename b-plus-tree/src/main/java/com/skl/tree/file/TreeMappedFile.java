@@ -56,8 +56,9 @@ public class TreeMappedFile {
 
 
             if(addBufferRequest.getValue() instanceof BPlusTreeNode) {
-                ((BPlusTreeNode) addBufferRequest.getValue())
-                        .startOffset(offset).stored(true);
+                BPlusTreeNode bPlusTreeNode =(BPlusTreeNode) addBufferRequest.getValue();
+                bPlusTreeNode.startOffset(offset)
+                        .stored(true).storeNumber(bPlusTreeNode.getStoreNumber()+1);
             }
 
             System.out.println("value:"+ JSONObject.toJSONString(addBufferRequest.getValue()));
@@ -91,10 +92,17 @@ public class TreeMappedFile {
         }
     }
 
+
+
     public BufferResult modify(ModifyBufferRequest request){
         ByteBuffer byteBuffer = mappedByteBuffer.slice();
         byteBuffer.position(request.getStartOffset());
         try {
+            if(request.getValue() instanceof BPlusTreeNode) {
+                BPlusTreeNode bPlusTreeNode =(BPlusTreeNode)request.getValue();
+                bPlusTreeNode.storeNumber(bPlusTreeNode.caculateStoreNumber());
+            }
+
             byte[] bytes = EncoderUtil.encoder(request.getValue());
 
             ByteBuffer dataBuffer = ByteBuffer.allocate(bytes.length);

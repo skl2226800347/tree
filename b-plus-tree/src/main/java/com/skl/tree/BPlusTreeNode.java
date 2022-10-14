@@ -4,6 +4,7 @@ import com.skl.tree.constatns.CompareConstants;
 import com.skl.tree.utils.CompareUtil;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class BPlusTreeNode<T extends BPlusTreeNode> implements Serializable {
     private boolean root=false;
@@ -107,11 +108,26 @@ public class BPlusTreeNode<T extends BPlusTreeNode> implements Serializable {
         this.number = number;
     }
 
+    public T storeNumber(int storeNumber){
+        this.storeNumber = storeNumber;
+        return self();
+    }
     public int getStoreNumber() {
         return storeNumber;
     }
 
     public void setStoreNumber(int storeNumber) {
         this.storeNumber = storeNumber;
+    }
+
+
+    public int caculateStoreNumber(){
+        int storeNumber=0;
+        for(Object key : this.keys){
+            if (key != null){
+                storeNumber++;
+            }
+        }
+        return storeNumber;
     }
 }
